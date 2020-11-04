@@ -6,28 +6,28 @@ import psycopg2
 import requests
 import logging
 from sqlalchemy import create_engine
+import sys
 
-##################### VARIABLES #####################
 # To download from binance API
 # Pair
-symbol = ''
-# Data granularity
-interval = ''
+symbol = sys.argv[1]
 # URL
 root_url = 'https://api.binance.com/api/v3/klines'
 
 # To connect to db
-u = '<dbuser>'
-pw = '<dbpassword>'
-db = '<dbname>'
-port = '5420'
-table = ''
+# Open credentials file
+cred = open("credentials.txt", "r")
+u = cred.readline()[:-1]
+pw = cred.readline()[:-1]
+db = cred.readline()[:-1]
+port = cred.readline()[:-1]
+table = sys.argv[1]
 
 # To test for missing data
 N_ROWS = 288
 N_COLS = 9
 
-##################### Log config #####################
+# Log file confing
 logging.basicConfig(
     filename='/Users/gabrielcontarini/logs/.log', 
     filemode='a',
@@ -35,13 +35,12 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s:%(message)s'
     )
 
-##################### DOWNLOAD DATA #####################
+# Download data
 url = '{url}?symbol={sym}&interval={int}'.format(
     url=root_url, 
     sym=symbol, 
     int=interval
     )
-
 # Download raw data
 try:
 	raw_data = json.loads(requests.get(url).text)
@@ -53,11 +52,8 @@ except Exception as e:
 else:
 	logging.info('Successful download raw data.')
 
-##################### PROCESS DATA #####################
-
 # Open as DF
 df = pd.DataFrame(raw_data)
-
 # Change columns' names
 df.columns = [
 	'open_time', 'open', 'high', 
@@ -65,13 +61,10 @@ df.columns = [
     'close_time', 'quoat_asset_volume', 'n_trades',
     'taker_base_vol', 'taker_quote_vol', 'ignore'
     ]
-
 # Transform index as datetime object from POSIX timestamp
 df.index = [dt.datetime.fromtimestamp(x/1000.0) for x in df.close_time]
-
 # Drop useless columns
 df = df.drop(columns=['open_time', 'close_time', 'ignore'])
-
 # Map columns' names to data type
 cols_type = {
 	'open': 'float32', 'high': 'float32', 'low': 'float32', 
@@ -97,8 +90,6 @@ elif one_day.shape[0] < N_ROWS:
     logging.warning('Missing rows.')
 else:
     logging.warning('Number of columns doesn\'t match.')
-
-################## TRANSFER DATA TO DB ##################
 
 # Log into db
 try:
