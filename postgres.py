@@ -17,6 +17,7 @@ root_url = 'https://api.binance.com/api/v3/klines'
 # To connect to db
 # Open credentials file
 cred = open("credentials.txt", "r")
+dburl = cred.readline()[:-1]
 u = cred.readline()[:-1]
 pw = cred.readline()[:-1]
 db = cred.readline()[:-1]
@@ -93,7 +94,8 @@ else:
 
 # Log into db
 try:
-    engine = create_engine('postgresql://{u}:{pw}@localhost:{port}/{db}'.format(
+    engine = create_engine('postgresql://{u}:{pw}@{dburl}:{port}/{db}'.format(
+        dburl=dburl,
         u=u, 
         pw=pw, 
         db=db, 
