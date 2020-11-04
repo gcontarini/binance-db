@@ -5,6 +5,7 @@ import pandas as pd
 import psycopg2
 import requests
 import logging
+import os
 from sqlalchemy import create_engine
 import sys
 
@@ -29,8 +30,12 @@ N_ROWS = 288
 N_COLS = 9
 
 # Log file confing
+work_path = os.path.dirname(os.path.abspath(__file__))
 logging.basicConfig(
-    filename='/Users/gabrielcontarini/logs/.log', 
+    filename='{fpath}/logs/{t}.log'.format(
+        fpath=work_path,
+        t=table
+        ) 
     filemode='a',
     level=logging.INFO, 
     format='%(asctime)s %(levelname)s:%(message)s'
