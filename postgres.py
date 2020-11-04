@@ -7,7 +7,7 @@ import requests
 import logging
 from sqlalchemy import create_engine
 
-##################### VARIABES #####################
+##################### VARIABLES #####################
 # To download from binance API
 # Pair
 symbol = ''
