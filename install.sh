@@ -22,6 +22,16 @@ echo "1 - PostgreSQL"
 echo "2 - Microsoft/Azure-SQL"
 read DBTYPE
 echo
+echo "Database server url"
+read DBURL
+echo "Database user to connect with server"
+read DBUSER
+echo "Password to connect with server"
+read DBPW
+echo "Database name"
+read DBNAME
+echo "Port to connect with database server"
+read DBPORT
 echo "Which pairs do you wish to download?"
 echo "Use the same pattern as Binance API uses"
 echo "Example: BTCUSDT ETHUSDT"
@@ -48,7 +58,15 @@ case "$DBTYPE" in
 		exit 1
 esac
 
-# Treat answer for paris
+# Create credentials file
+touch credentials.txt
+echo "$DBURL" >> credentials.txt
+echo "$DBUSER" >> credentials.txt
+echo "$DBPW" >> credentials.txt
+echo "$DBNAME" >> credentials.txt
+echo "$DBPORT" >> credentials.txt
+
+# Treat answer for pairs
 if [ -z $"PAIRS" ]; then
 	echo "Invalid input: must contain at least one pair"
 	exit 1
@@ -80,6 +98,7 @@ done
 FILE1="$FULLPATH/action.sh"
 FILE2="$FULLPATH/todb_binance.py"
 FILE3="$FULLPATH/tickers.txt"
+FILE4="$FULLPATH/credentials.txt"
 
 # Create main directory
 if ! [ -d "$FULLPATH" ]; then
@@ -91,7 +110,7 @@ if ! [ -d "$FULLPATH/logs" ]; then
 fi
 
 # Check if files are already  installed
-if [ -f "$FILE1" ] || [ -f "$FILE2" ] || [ -f "$FILE3" ]; then
+if [ -f "$FILE1" ] || [ -f "$FILE2" ] || [ -f "$FILE3" ] || [ -f "$FILE4" ]; then
 	echo "Some or all files are already installed."
 	echo "Wish to continue? (Y/N)"
 	read ANSWER
@@ -115,6 +134,10 @@ echo "Installing scripts..."
 cp action.sh "$FULLPATH"
 cp "$SEEDFILE" "$FILE2"
 mv tickers.txt "$FILE3"
+mv credentials.txt "$FILE4"
 echo
 echo "Installation sucessfull"
+echo "========= WARNINGS ========="
+echo "Configure crontab to run action.sh at 18:30h everyday"
+echo "The tables inside the database must have the same names as the pairs used here in install.sh"
 exit 0
