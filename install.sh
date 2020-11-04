@@ -25,7 +25,7 @@ echo
 echo "Which pairs do you wish to download?"
 echo "Use the same pattern as Binance API uses"
 echo "Example: BTCUSDT ETHUSDT"
-echo "\tDownload data from Bitcoin/USDTheter and Ether/USDTheter"
+echo "Download data from Bitcoin/USDTheter and Ether/USDTheter"
 read PAIRS
 
 # Treat destiny folder answer
