@@ -139,5 +139,6 @@ echo
 echo "Installation sucessfull"
 echo "========= WARNINGS ========="
 echo "Configure crontab to run action.sh at 18:30h everyday"
+echo "Also change crontab HOME to the folder with action.sh"
 echo "The tables inside the database must have the same names as the pairs used here in install.sh"
 exit 0
