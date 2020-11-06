@@ -35,7 +35,7 @@ logging.basicConfig(
     filename='{fpath}/logs/{t}.log'.format(
         fpath=work_path,
         t=table
-        ) 
+        ) ,
     filemode='a',
     level=logging.INFO, 
     format='%(asctime)s %(levelname)s:%(message)s'
