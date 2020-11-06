@@ -13,6 +13,8 @@ import sys
 symbol = sys.argv[1]
 # URL
 root_url = 'https://api.binance.com/api/v3/klines'
+# Frequency
+interval='5m'
 
 # To connect to db
 # Open credentials file
