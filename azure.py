@@ -101,16 +101,17 @@ else:
 
 # Log into db
 try:
-    cnxn = pyodbc.connect('DRIVER={dr};SERVER={url};DATABASE={db};UID={u};PWD={pw}'.format(
-    	dr=driver,
-    	url=dburl,
-    	db=db,
-    	u=u,
-    	pw=pw
-    	))
+    cnxn = pyodbc.connect(
+        driver=driver, 
+        uid=u, 
+        pwd=pw, 
+        server=dburl, 
+        database=db, 
+        trusted_connection='no'
+        )
 
     # Retrieve cursor
-    cursor = cnxn.cursor()
+    cur = cnxn.cursor()
    
 except Exception as e:
     logging.error('Unable to connect with database.')
@@ -120,29 +121,25 @@ else:
     logging.info('Connected with database.')
 
 # Append data to db
-try:
-    with cnxn:
-    	# Create cursor
-    	cur = cnxn.cursor()
-    	
-    	# Iterate rows from df
-    	for index, row in one_day.iterrows():
-    		# Format SQL command
-    		sql = "INSERT INTO {t}(time, o, h, l, c, volume, quoat_asset_volume, n_trades, taker_base_vol, taker_quote_vol) values ({index}, {o}, {h}, {l}, {c}, {v}, {qav}, {nt}, {tbv}, {tqv})".format(
-    			t=table,
-    			index=index,
-    			o=row['open'],
-    			h=row['high'],
-    			l=row['low'],
-    			c=row['close'],
-    			v=row['volume'],
-    			qav=row['quoat_asset_volume'],
-    			nt=row['n_trades'],
-    			tbv=row['taker_base_vol'],
-    			tqv=row['taker_quote_vol']
-    			)
-    		# Append to db
-    		cur.execute(sql)
+try:    
+    # Iterate rows from df
+    for index, row in one_day.iterrows():
+        # Format SQL command
+        sql = "insert into {t} (time, o, h, l, c, volume, quoat_asset_volume, n_trades, taker_base_vol, taker_quote_vol) values (convert(datetime2, '{index}', 121), {o}, {h}, {l}, {c}, {v}, {qav}, {nt}, {tbv}, {tqv});".format(
+            t=table,
+            index=index,
+            o=row['open'],
+            h=row['high'],
+            l=row['low'],
+            c=row['close'],
+            v=row['volume'],
+            qav=row['quoat_asset_volume'],
+            nt=row['n_trades'],
+            tbv=row['taker_base_vol'],
+            tqv=row['taker_quote_vol']
+            )
+        # Append to db
+        cur.execute(sql)
 
 except Exception as e:
     logging.error('Unable to append data to database.')
@@ -152,5 +149,7 @@ else:
     logging.info('Successful data copied to database.')
 
 finally:
+    # Commit changes
+    cnxn.commit()
     # Close connection
     cnxn.close()
