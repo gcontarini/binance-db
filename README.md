@@ -3,7 +3,7 @@ Scripts to get and copy to database market data from specific asset or asset lis
 
 Can install the PostgreSQL server script or the T-SQL server script (used in free-tier Azure platform).
 
-# Needed packages for PostgreSQL script:
+### Needed packages for PostgreSQL script:
 - Datetime
 - Json
 - Pandas
@@ -12,7 +12,7 @@ Can install the PostgreSQL server script or the T-SQL server script (used in fre
 - Logging
 - Sqlalchemy
 
-# Needed packages for T-SQL script:
+### Needed packages for T-SQL script:
 - Datetime
 - Json
 - Pandas
@@ -20,9 +20,9 @@ Can install the PostgreSQL server script or the T-SQL server script (used in fre
 - Requests
 - Logging
 
-# Installation and setup:
+## Installation and setup:
 1. Go to the binance-db folder
 2. Run ./install.sh
 3. Follow the instructions and provide the information requested
-4. Go to the crontab editor and setup to run .../binance-db/script/action.sh at 18:30h everyday.
+4. Setup the crontab to go to folder .../db-binance-scripts/ and run ./action.sh at 18:30h everyday.
 5. Your enviroment is ready!
