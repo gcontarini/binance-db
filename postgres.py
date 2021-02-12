@@ -9,23 +9,20 @@ import os
 from sqlalchemy import create_engine
 import sys
 
-def insert_sql(df, table, cursor):
+def insert_all_rows(df, table, cursor, connection):
     '''Insert df into SQL server'''
-
     for index, row in df.iterrows():
-        sql_command = 'INSERT INTO {t} VALUES ({time}, {open}, {high}, {low}, {close}, {volume}, {qav}, {nt}, {tbv}, {tqv});'.format(
-            t=table,
-            time=index,
-            open=row['open'],
-            high=row['high'],
-            low=row['low'],
-            close=row['close'],
-            volume=row['volume'],
-            qav=row['quoat_asset_volume'],
-            tbv=row['taker_base_vol'],
-            tqv=row['taker_quote_vol']
-            )
-        cursor.execute(sql_command)
+        # Define query string
+        query = 'INSERT INTO {} (time, open, high, low, close, volume, quoat_asset_volume, n_trades, taker_base_vol, taker_quote_vol) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.format(table)
+        
+        # Append row values into list
+        values = [index]
+        for r in row:
+            values.append(float(r))
+        
+        # Execute and commit transaction
+        cursor.execute(query, values)
+        connection.commit()
 
     return None
 
@@ -139,7 +136,7 @@ else:
 
 # Append data to db
 try:
-    insert_sql(one_day, table, cursor)
+    insert_all_rows(one_day, table, cur, conn)
 
 except Exception as e:
     logging.error('Unable to append data to database.')
@@ -149,7 +146,6 @@ else:
     logging.info('Successful data copied to database.')
 
 finally:
-    conn.commit()
     # Close all connections with DB server
-    cursor.close()
+    cur.close()
     conn.close()
