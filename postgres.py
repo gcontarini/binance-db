@@ -9,6 +9,26 @@ import os
 from sqlalchemy import create_engine
 import sys
 
+def insert_sql(df, table, cursor):
+    '''Insert df into SQL server'''
+
+    for index, row in df.iterrows():
+        sql_command = 'INSERT INTO {t} VALUES ({time}, {open}, {high}, {low}, {close}, {volume}, {qav}, {nt}, {tbv}, {tqv});'.format(
+            t=table,
+            time=index,
+            open=row['open'],
+            high=row['high'],
+            low=row['low'],
+            close=row['close'],
+            volume=row['volume'],
+            qav=row['quoat_asset_volume'],
+            tbv=row['taker_base_vol'],
+            tqv=row['taker_quote_vol']
+            )
+        cursor.execute(sql_command)
+
+    return None
+
 # To download from binance API
 # Pair
 symbol = sys.argv[1]
@@ -101,13 +121,14 @@ else:
 
 # Log into db
 try:
-    engine = create_engine('postgresql://{u}:{pw}@{dburl}:{port}/{db}'.format(
-        dburl=dburl,
-        u=u, 
-        pw=pw, 
-        db=db, 
+    conn = psycopg2.connect(
+        host=dburl, 
+        database=db,
+        user=u,
+        password=pw,
         port=port
-        ))
+        )
+    cur = conn.cursor()
 
 except Exception as e:
     logging.error('Unable to connect with database.')
@@ -118,7 +139,7 @@ else:
 
 # Append data to db
 try:
-    one_day.to_sql(table, con=engine, if_exists='append', index_label='time')
+    insert_sql(one_day, table, cursor)
 
 except Exception as e:
     logging.error('Unable to append data to database.')
@@ -128,5 +149,7 @@ else:
     logging.info('Successful data copied to database.')
 
 finally:
-    # Close engine connection
-    engine.dispose()
+    conn.commit()
+    # Close all connections with DB server
+    cursor.close()
+    conn.close()
